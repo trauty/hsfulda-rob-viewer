@@ -6,7 +6,7 @@ Möglichkeiten, 3D-Punktwolken vom Roboter auf einem Android-Gerät anzusehen, e
 
 ## Browser-basiert
 
-### Foxglove Web (Chrome)
+### [Foxglove Web](https://github.com/foxglove/studio) (Chrome)
 
 **Pro**
 - Natives MCAP, sehr gutes 3D-Panel, live + aufgezeichnet
@@ -16,7 +16,7 @@ Möglichkeiten, 3D-Punktwolken vom Roboter auf einem Android-Gerät anzusehen, e
 - Desktop UI: auf dem Handy basically unusable, auf dem Tablet nicht viel besser
 - Nur Chrome, Account nötig, Closed Source
 
-### Lichtblick (Open-Source-Fork von Foxglove)
+### [Lichtblick](https://github.com/lichtblick-suite/lichtblick) (Open-Source-Fork von Foxglove)
 
 **Pro**
 - Gleicher Funktionsumfang, self-host, kein Account
@@ -25,7 +25,7 @@ Möglichkeiten, 3D-Punktwolken vom Roboter auf einem Android-Gerät anzusehen, e
 - Gleiche Probleme mit der Bedienung wie Foxglove Web
 - Hinkt Upstream hinterher
 
-### ROSboard
+### [ROSboard](https://github.com/dheera/rosboard)
 
 **Pro**
 - Für Handys gebaut, läuft als einzelne ROS-Node
@@ -35,7 +35,7 @@ Möglichkeiten, 3D-Punktwolken vom Roboter auf einem Android-Gerät anzusehen, e
 - Punktwolkenansicht ist unausgebildet
 - Nur live, keine Wiedergabe von MCAP
 
-### Rerun Web-Viewer
+### [Rerun Web-Viewer](https://github.com/rerun-io/rerun)
 
 **Pro**
 - Schnellster Renderer (webgpu), Open Source
@@ -51,7 +51,7 @@ Möglichkeiten, 3D-Punktwolken vom Roboter auf einem Android-Gerät anzusehen, e
 
 ## Remote-Rendering
 
-### Sunshine + Moonlight (Pixel-Streaming)
+### [Sunshine + Moonlight](https://github.com/lizardbyte/sunshine) (Pixel-Streaming)
 
 **Pro**
 - Performance unabhängig von der Punktzahl
@@ -61,7 +61,7 @@ Möglichkeiten, 3D-Punktwolken vom Roboter auf einem Android-Gerät anzusehen, e
 - Braucht GPU + X-Session irgendwo
 - Fernsteuerung per Mauszeiger, fühlt sich nicht wie eine App an
 
-### web_video_server (rviz-Kameraansicht)
+### [web_video_server](https://github.com/RobotWebTools/web_video_server) (rviz-Kameraansicht)
 
 **Pro**
 - Lightweight
@@ -74,7 +74,7 @@ Möglichkeiten, 3D-Punktwolken vom Roboter auf einem Android-Gerät anzusehen, e
 
 ## Nativ Android
 
-### AR-RViz
+### [AR-RViz](https://github.com/kodie-artner/AR-RViz)
 
 **Pro**
 - Voll nativ, AR-Overlay auf den echten Roboter
@@ -85,7 +85,7 @@ Möglichkeiten, 3D-Punktwolken vom Roboter auf einem Android-Gerät anzusehen, e
 - Wird nicht weiterentwickelt
 - Wurde mit Unity gemacht
 
-### cogniteam/android_ros_pointcloud_viewer
+### [cogniteam/android_ros_pointcloud_viewer](https://github.com/cogniteam/android_ros_pointcloud_viewer)
 
 **Pro**
 - Der Name ist Programm
@@ -97,7 +97,7 @@ Möglichkeiten, 3D-Punktwolken vom Roboter auf einem Android-Gerät anzusehen, e
 
 ## Offline
 
-### MCAP → PLY/LAS oder → Potree-Octree
+### MCAP → PLY/LAS oder → [Potree-Octree](https://github.com/potree/potree)
 
 **Pro**
 - Potree streamt riesige Wolken flüssig auf Mobilgeräten
