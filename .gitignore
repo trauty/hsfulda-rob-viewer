@@ -1,0 +1,7 @@
+/build/
+/.cpm-cache/
+/third_party/SDL/
+/client/android/debug.keystore
+/compile_commands.json
+/.cache/
+*.apk

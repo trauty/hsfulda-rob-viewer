@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- robv-client. No res/ directory: literal strings and a framework theme, so aapt2 links this without a compile step.
+     minSdk / targetSdk / versionCode / versionName come from the aapt2 command line (cmake/RobvAndroidApk.cmake). -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="de.hsfulda.robv"
+    android:installLocation="auto">
+
+    <!-- Vulkan 1.2 is checked at runtime with a readable error, so the store filter is not used -->
+    <uses-feature android:name="android.hardware.vulkan.version" android:version="0x402000" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+    <uses-feature android:name="android.hardware.type.pc" android:required="false" />
+
+    <!-- control channel (TCP) and video (RTP/UDP) to the robot -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <!-- extractNativeLibs=false: the .so files are mapped straight out of the APK, stored uncompressed and aligned -->
+    <application
+        android:label="robv"
+        android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+        android:allowBackup="false"
+        android:extractNativeLibs="false"
+        android:enableOnBackInvokedCallback="false"
+        android:hardwareAccelerated="true">
+
+        <!-- lets simpleperf and the Android Studio profiler attach from adb shell, without a debuggable build -->
+        <profileable android:shell="true" />
+
+        <!-- SDL's own activity: getLibraries() already loads SDL3 and main, so robv has no Java of its own -->
+        <activity
+            android:name="org.libsdl.app.SDLActivity"
+            android:label="robv"
+            android:alwaysRetainTaskState="true"
+            android:launchMode="singleInstance"
+            android:configChanges="layoutDirection|locale|grammaticalGender|fontScale|fontWeightAdjustment|orientation|uiMode|screenLayout|screenSize|smallestScreenSize|keyboard|keyboardHidden|navigation"
+            android:preferMinimalPostProcessing="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

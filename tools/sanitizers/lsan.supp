@@ -1,0 +1,2 @@
+# nvidia driver registers but never frees, so lsan never shuts up (why nvidia)
+leak:libdbus-1.so

@@ -1,0 +1,57 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": {"major": 3, "minor": 25, "patch": 0},
+    "configurePresets": [
+        {
+            "name": "base",
+            "hidden": true,
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/${presetName}"
+        },
+        {
+            "name": "linux-debug",
+            "inherits": "base",
+            "displayName": "Linux debug (validation on)",
+            "cacheVariables": {"CMAKE_BUILD_TYPE": "Debug"}
+        },
+        {
+            "name": "linux-release",
+            "inherits": "base",
+            "displayName": "Linux release",
+            "cacheVariables": {"CMAKE_BUILD_TYPE": "Release"}
+        },
+        {
+            "name": "linux-asan",
+            "inherits": "base",
+            "displayName": "Linux debug + AddressSanitizer",
+            "cacheVariables": {"CMAKE_BUILD_TYPE": "Debug", "ROBV_SANITIZE": "address"}
+        },
+        {
+            "name": "jetson-native-release",
+            "inherits": "base",
+            "displayName": "Jetson Orin NX, built on the Jetson, hardware encoder",
+            "cacheVariables": {"CMAKE_BUILD_TYPE": "Release", "ROBV_ENCODER": "jetson", "ROBV_BUILD_CLIENT": "OFF"}
+        },
+        {
+            "name": "android-arm64",
+            "inherits": "base",
+            "displayName": "Android arm64-v8a client APK, no Gradle",
+            "toolchainFile": "$env{ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+                "ANDROID_ABI": "arm64-v8a",
+                "ANDROID_PLATFORM": "android-29",
+                "ANDROID_STL": "c++_static",
+                "ROBV_BUILD_SERVER": "OFF",
+                "ROBV_BUILD_TOOLS": "OFF"
+            }
+        }
+    ],
+    "buildPresets": [
+        {"name": "linux-debug", "configurePreset": "linux-debug"},
+        {"name": "linux-release", "configurePreset": "linux-release"},
+        {"name": "linux-asan", "configurePreset": "linux-asan"},
+        {"name": "jetson-native-release", "configurePreset": "jetson-native-release"},
+        {"name": "android-arm64", "configurePreset": "android-arm64"}
+    ]
+}
