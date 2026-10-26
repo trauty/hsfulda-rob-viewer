@@ -14,6 +14,8 @@ namespace robv
     {
         // CPU test pattern driven by the view state
         null,
+        // points, grid and axes with Vulkan, rgb_to_nv12 on the GPU, NV12 read back
+        vulkan,
     };
 
     struct renderer_config_t
@@ -28,8 +30,9 @@ namespace robv
     {
         renderer_config_t config;
         const vk_context_t* vk = nullptr;
-        VkShaderModule rgb_to_nv12 = VK_NULL_HANDLE;
         u64 frames = 0;
+        // clouds uploaded to the GPU, a source repeating its blob is not uploaded again
+        u64 uploads = 0;
         void* backend = nullptr;
     };
 

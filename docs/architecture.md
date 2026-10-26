@@ -72,9 +72,9 @@ Code style:
 | `synthetic://` source | Done: Fibonacci sphere, XYZI, configurable rate |
 | `socket://` source | Done: accepts `cloud_frame` from the bridge |
 | `mcap://` source | Reads the summary (PointCloud2 topics, time range). No playback. |
-| Renderer | `null`: colour bars driven by the view state, `rgb_to_nv12.comp` loaded. No point pass yet. |
-| Encoder | `null` counts frames. `jetson` opens and checks `/dev/v4l2-nvenc`, then refuses. |
-| Transport | `null`: simulated client that orbits, zooms, pings. `net` (RTP + TCP) not implemented. |
-| Client | Swapchain, clear colour, ImGui status panel, Android surface loss/restore |
-| Decoder | `null` test pattern. `mediacodec` and `ffmpeg` declared, not implemented. |
+| Renderer | `vulkan`: points straight from the blob (any float32 XYZ layout, padded rows, intensity of any field type, packed rgb), colour by intensity, height, rgb or flat, point size, grid and axes; `rgb_to_nv12` on the GPU, one readback per frame (0.4 ms at 200k points, 3 ms at 10M on an RTX 4070). No eye-dome lighting yet. `null`: colour bars driven by the view state. `--dump` writes the last frame as NV12. |
+| Encoder | `ffmpeg` (desktop): NVENC, falling back to x264, low latency, IDR on request (0.9 ms per 720p frame on an RTX 4070). `null` counts frames. `jetson` opens and checks `/dev/v4l2-nvenc`, then refuses. |
+| Transport | `null`: simulated client that orbits, zooms, pings. `net`: TCP control server (any number of clients, slow readers dropped) and RTP video, H.264 packetized once and sent to every client that punched, IDR when one joins or loses packets. |
+| Client | Swapchain, video drawn letterboxed through a YCbCr sampler (NV12 uploads on the desktop, zero copy on Android), ImGui panel, Android surface loss/restore. Control channel on its own thread (connect, reconnect with backoff, ping/RTT); drag orbits, two fingers or right drag pan, pinch or wheel zooms; panel edits render settings. |
+| Decoder | `mediacodec` (Android, the default there): `c2.mtk.avc.decoder` in async mode into an `AImageReader` of GPU buffers, each `AHardwareBuffer` imported into Vulkan with the driver's external format (MediaTek outputs a tiled format a CPU copy cannot read). On the Tab A11+ over Wi-Fi: 30 fps, render to decoded 24 ms idle and 34 ms dragging, plus 34 to 44 ms in the display queue. `ffmpeg` (desktop default): software H.264, concealed frames shown after a loss. `null`: test pattern. |
 | ROS 2 bridge | Socket framing done. Subscriber is a stub that only counts clouds. |

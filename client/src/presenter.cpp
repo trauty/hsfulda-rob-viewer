@@ -384,7 +384,7 @@ namespace robv::presenter
         return true;
     }
 
-    bool begin_frame(presenter_t& presenter, const f32 clear_color[4], VkCommandBuffer& cmd)
+    bool begin_frame(presenter_t& presenter, VkCommandBuffer& cmd)
     {
         presenter_t& p = presenter;
         if (!p.surface) { return false; }
@@ -416,6 +416,15 @@ namespace robv::presenter
         };
         vkBeginCommandBuffer(frame.cmd, &begin_info);
 
+        cmd = frame.cmd;
+        return true;
+    }
+
+    void begin_pass(presenter_t& presenter, const f32 clear_color[4])
+    {
+        presenter_t& p = presenter;
+        presenter_frame_t& frame = p.frames[p.frame_index];
+
         VkClearValue clear{};
         for (u32 i = 0; i < 4; ++i) { clear.color.float32[i] = clear_color[i]; }
         const VkRenderPassBeginInfo pass_info{
@@ -427,9 +436,6 @@ namespace robv::presenter
             .pClearValues = &clear,
         };
         vkCmdBeginRenderPass(frame.cmd, &pass_info, VK_SUBPASS_CONTENTS_INLINE);
-
-        cmd = frame.cmd;
-        return true;
     }
 
     void end_frame(presenter_t& presenter)

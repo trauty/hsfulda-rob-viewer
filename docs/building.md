@@ -19,6 +19,7 @@ Requirements:
 - CMake ≥ 3.25, Ninja, GCC ≥ 13 or Clang ≥ 17 (C++20 with `<format>`)
 - A Vulkan driver and `slangc`. The Vulkan SDK ships `slangc`; otherwise configure downloads a pinned Slang release.
 - `vulkan-validation-layers` is optional; debug builds use it if installed.
+- ffmpeg 7 or newer with development files (libavcodec, libavutil) for the desktop encoder and decoder. Configure with `-DROBV_WITH_FFMPEG=OFF` to build without them.
 - Nothing links `libvulkan.so`; volk opens it at runtime.
 
 ```sh
@@ -66,7 +67,9 @@ adb shell "cat /vendor/etc/media_codecs*.xml" | grep -iE 'avc|hevc|low-latency' 
 adb shell cmd gpu vkjson | head -50
 ```
 
-The client panel also shows whether `VK_ANDROID_external_memory_android_hardware_buffer` is available.
+The client panel also shows whether `VK_ANDROID_external_memory_android_hardware_buffer` is available. The client logs a stream summary every 10 s (`adb logcat -s robv-client`): frames shown, render to decode latency, display queue, packets lost.
+
+The machine running `robv-server` must accept TCP on the control port (9400), e.g. `sudo ufw allow 9400/tcp`. Video goes out over UDP, so it needs no inbound rule. A client on the same machine uses loopback and is not affected.
 
 ## Jetson Orin NX (JetPack 6)
 

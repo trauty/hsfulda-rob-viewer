@@ -1,7 +1,9 @@
 #pragma once
 
 #include "robv/client/decoder.h"
+#include "robv/client/net.h"
 #include "robv/client/presenter.h"
+#include "robv/client/video_view.h"
 #include "robv/client/vsync.h"
 #include "robv/common/view_state.h"
 #include "robv/vk/context.h"
@@ -13,27 +15,29 @@ union SDL_Event;
 
 namespace robv
 {
-    enum class connection_state_e : u8
+    struct gesture_t
     {
-        disconnected,
-        connecting,
-        connected
-    };
+        // touch
+        u64 fingers[2] = {};
+        f32 finger_x[2] = {};
+        f32 finger_y[2] = {};
+        u32 finger_count = 0;
 
-    struct connection_t
-    {
-        connection_state_e state = connection_state_e::disconnected;
-        std::string server = "192.168.1.10:9400";
-        u32 client_id = 0;
-        f32 rtt_ms = 0.0f;
-        // latest server snapshot
-        view_state_t view;
-        std::string status = "control channel not implemented yet";
+        // desktop
+        bool mouse_orbit = false;
+        bool mouse_pan = false;
+
+        f32 orbit_dx = 0.0f;
+        f32 orbit_dy = 0.0f;
+        f32 pan_dx = 0.0f;
+        f32 pan_dy = 0.0f;
+        f32 zoom = 0.0f;
     };
 
     struct app_config_t
     {
         decoder_kind_e decoder = decoder_kind_e::null;
+        std::string server; // host:port
         bool validation = false;
         // draw every refresh, for benchmarks and smoke tests
         bool continuous = false;
@@ -50,7 +54,30 @@ namespace robv
         presenter_t presenter;
         decoder_t decoder;
         decoded_frame_t decoded;
+        // access units handed over by the net thread, reused
+        std::vector<rtp_unit_t> units;
+        bool decoded_pending = false;
+        // zero copy decoder images: the one on screen, and replaced ones until the frames drawing them finished
+        struct retiring_image_t
+        {
+            void* image = nullptr;
+            u64 done_at = 0;
+        };
+
+        void* shown_image = nullptr;
+        std::vector<retiring_image_t> retiring_images;
+        video_view_t video;
+        net_t net;
+        u32 net_event = 0;
+        // decoder finishing on its thread (MediaCodec) wakes the loop with this
+        u32 decoder_event = 0;
         connection_t connection;
+
+        char server_text[128] = {};
+        gesture_t gesture;
+
+        f32 panel_min[2] = {};
+        f32 panel_max[2] = {};
         bool imgui_ready = false;
         bool in_background = false;
         bool quit = false;
@@ -74,6 +101,11 @@ namespace robv
         u32 rate_window_frames = 0;
         f32 draws_per_second = 0.0f;
         f32 frame_cpu_ms = 0.0f;
+
+        f32 video_age_ms = 0.0f;
+
+        u64 stream_log_ns = 0;
+        u64 stream_log_frames = 0;
     };
 } // namespace robv
 

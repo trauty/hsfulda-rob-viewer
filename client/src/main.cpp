@@ -31,7 +31,8 @@ namespace
     {
         std::fprintf(stderr,
                      "usage: robv-client [options]\n"
-                     "  --decoder <kind>      null (default); mediacodec and ffmpeg are not implemented yet\n"
+                     "  --server <host:port>  connect at startup, otherwise use the panel\n"
+                     "  --decoder <kind>      mediacodec (Android), ffmpeg (desktop) or null (test pattern)\n"
                      "  --size <w>x<h>        initial window size, default 1280x720\n"
                      "  --frames <n>          exit after n presented frames, 0 runs until closed (default)\n"
                      "  --continuous          draw every display refresh instead of only when something changed\n"
@@ -48,6 +49,15 @@ int main(int argc, char** argv)
 #if defined(ROBV_VALIDATION_DEFAULT) && !defined(ROBV_PLATFORM_ANDROID)
     config.validation = true;
 #endif
+
+    if (robv::decoder::is_compiled_in(robv::decoder_kind_e::mediacodec))
+    {
+        config.decoder = robv::decoder_kind_e::mediacodec;
+    }
+    else if (robv::decoder::is_compiled_in(robv::decoder_kind_e::ffmpeg))
+    {
+        config.decoder = robv::decoder_kind_e::ffmpeg;
+    }
     u64 max_frames = 0;
     robv::log::level_e log_level = robv::log::level_e::info;
 
@@ -62,6 +72,11 @@ int main(int argc, char** argv)
         {
             print_usage();
             return 0;
+        }
+        else if (arg == "--server")
+        {
+            config.server = value;
+            ok = !value.empty();
         }
         else if (arg == "--decoder") { ok = robv::decoder::parse_kind(value, config.decoder); }
         else if (arg == "--size") { ok = parse_size(value, config.width, config.height); }

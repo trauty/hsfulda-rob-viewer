@@ -22,6 +22,8 @@ namespace robv
     {
         u32 client_id = 0;
         std::string name;
+        u32 ipv4 = 0;
+        u16 video_port = 0;
     };
 
     enum class control_event_kind_e : u8
@@ -29,7 +31,8 @@ namespace robv
         connected,
         disconnected,
         intent,
-        ping
+        ping,
+        keyframe_request
     };
 
     struct control_event_t
@@ -67,9 +70,13 @@ namespace robv::transport
 {
     bool open_video_sink(video_sink_t& sink, transport_kind_e kind, const video_info_t& info);
     void close_video_sink(video_sink_t& sink);
-    void add_video_peer(video_sink_t& sink, u32 client_id);
+    // video goes to ipv4:video_port at once, outbound, so the server needs no inbound UDP rule
+    // a punch from the same host moves it (a NAT that rewrote the port), video_port 0 waits for the punch
+    void add_video_peer(video_sink_t& sink, u32 client_id, u32 ipv4, u16 video_port);
     void remove_video_peer(video_sink_t& sink, u32 client_id);
     void send_video(video_sink_t& sink, const encoded_packet_t& packet);
+    // reads punches, never blocks, true when a client became reachable and needs an IDR to start
+    bool poll_video(video_sink_t& sink);
 
     bool open_control(control_server_t& server, transport_kind_e kind, u16 port);
     void close_control(control_server_t& server);

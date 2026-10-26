@@ -11,10 +11,10 @@ namespace robv
     struct camera_t
     {
         vec3_t target;
-        f32 yaw = 0.785398f;
+        f32 yaw = PI / 4.0f;
         f32 pitch = 0.5f;
         f32 distance = 20.0f;
-        f32 fov_y = 1.047198f;
+        f32 fov_y = PI / 3.0f;
         f32 near_plane = 0.05f;
         f32 far_plane = 2000.0f;
 

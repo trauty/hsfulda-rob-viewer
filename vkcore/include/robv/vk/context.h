@@ -43,6 +43,10 @@ namespace robv
         u32 instance_version = 0;
         u32 api_version = 0;
         bool validation_enabled = false;
+        // samplerYcbcrConversion enabled, the client samples NV12 through it
+        bool ycbcr_conversion = false;
+        // largePoints enabled, point sizes other than 1
+        bool large_points = false;
         VkPhysicalDeviceProperties properties{};
         VkPhysicalDeviceDriverProperties driver{};
         std::vector<std::string> enabled_device_extensions;

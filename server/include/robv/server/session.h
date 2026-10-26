@@ -60,6 +60,8 @@ namespace robv
         std::vector<control_event_t> events;
         u64 last_state_ns = 0;
         u64 last_state_tick = UINT64_MAX;
+        // a client losing packets asks every frame, an IDR is several times a P frame
+        u64 last_keyframe_request_ns = 0;
         session_stats_t stats;
     };
 } // namespace robv

@@ -139,6 +139,7 @@ namespace robv::vk
             std::vector<VkExtensionProperties> extensions;
             bool has_ycbcr = false;
             bool has_storage_formats = false;
+            bool has_large_points = false;
             u32 score = 0;
         };
 
@@ -173,6 +174,7 @@ namespace robv::vk
             if (!features12.timelineSemaphore) { return "lacks timeline semaphores"; }
             out.has_ycbcr = features11.samplerYcbcrConversion == VK_TRUE;
             out.has_storage_formats = features.features.shaderStorageImageExtendedFormats == VK_TRUE;
+            out.has_large_points = features.features.largePoints == VK_TRUE;
 
             if (!pick_queue_families(device, surface, config.need_presentation, out.families))
             {
@@ -317,6 +319,8 @@ namespace robv::vk
         ctx.physical_device = best.device;
         ctx.properties = best.properties;
         ctx.api_version = best.properties.apiVersion;
+        ctx.ycbcr_conversion = best.has_ycbcr;
+        ctx.large_points = best.has_large_points;
 
         std::vector<const char*> extensions = config.extra_device_extensions;
         if (config.need_presentation) { extensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME); }
@@ -353,10 +357,12 @@ namespace robv::vk
         };
         // r8 and rg8 storage images, the NV12 planes the conversion writes
         // core in 1.3, near universal in 1.2
+        // large points: point sizes other than 1, the point renderer's size setting
         const VkPhysicalDeviceFeatures2 features{
             .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
             .pNext = &features12,
-            .features = {.shaderStorageImageExtendedFormats = best.has_storage_formats ? VK_TRUE : VK_FALSE},
+            .features = {.largePoints = best.has_large_points ? VK_TRUE : VK_FALSE,
+                         .shaderStorageImageExtendedFormats = best.has_storage_formats ? VK_TRUE : VK_FALSE},
         };
 
         const VkDeviceCreateInfo device_info{

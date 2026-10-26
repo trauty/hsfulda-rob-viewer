@@ -12,4 +12,16 @@ shares.
 cmake --preset linux-debug && cmake --build --preset linux-debug
 ./build/linux-debug/server/robv-server --source synthetic:// --encoder null --transport null
 ./build/linux-debug/client/robv-client
+
+# control over TCP
+./build/linux-debug/server/robv-server --transport net
+./build/linux-debug/client/robv-client --server 127.0.0.1:9400
+
+# the whole stream: Vulkan points, NVENC or x264, RTP to every client
+./build/linux-debug/server/robv-server --renderer vulkan --encoder ffmpeg --transport net
+./build/linux-debug/client/robv-client --server 127.0.0.1:9400
+
+# points rendered with Vulkan, the last frame saved as NV12
+./build/linux-debug/server/robv-server --renderer vulkan --frames 90 --dump frame.nv12
+ffplay -f rawvideo -pixel_format nv12 -video_size 1280x720 frame.nv12
 ```

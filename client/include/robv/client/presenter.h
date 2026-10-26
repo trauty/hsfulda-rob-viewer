@@ -76,8 +76,9 @@ namespace robv::presenter
     bool restore_surface(presenter_t& presenter, VkSurfaceKHR surface);
 
     // false when there is nothing to draw into (minimised, no surface, rebuilding)
-    // on true, cmd records inside the render pass until end_frame
-    bool begin_frame(presenter_t& presenter, const f32 clear_color[4], VkCommandBuffer& cmd);
+    // on true, cmd records outside the render pass (uploads) until begin_pass, then inside it until end_frame
+    bool begin_frame(presenter_t& presenter, VkCommandBuffer& cmd);
+    void begin_pass(presenter_t& presenter, const f32 clear_color[4]);
     void end_frame(presenter_t& presenter);
 
     // call on resize, rebuilds at the next begin_frame

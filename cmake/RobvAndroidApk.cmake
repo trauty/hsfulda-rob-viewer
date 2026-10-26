@@ -74,13 +74,17 @@ function(robv_add_apk native_target)
     get_filename_component(java_bin "${ROBV_JAVA}" DIRECTORY)
     set(with_java "${CMAKE_COMMAND}" -E env "PATH=${java_bin}:$ENV{PATH}")
 
-    add_custom_command(
-        OUTPUT "${arg_KEYSTORE}"
-        COMMAND "${ROBV_KEYTOOL}" -genkeypair -keystore "${arg_KEYSTORE}" -alias androiddebugkey
-                -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android
-                -dname "CN=Android Debug,O=Android,C=US"
-        COMMENT "keytool: generating debug keystore ${arg_KEYSTORE}"
-        VERBATIM)
+    if(NOT EXISTS "${arg_KEYSTORE}")
+        message(STATUS "keytool: generating debug keystore ${arg_KEYSTORE}")
+        execute_process(
+            COMMAND "${ROBV_KEYTOOL}" -genkeypair -keystore "${arg_KEYSTORE}" -alias androiddebugkey
+                    -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android
+                    -dname "CN=Android Debug,O=Android,C=US"
+            RESULT_VARIABLE keytool_result)
+        if(NOT keytool_result EQUAL 0)
+            message(FATAL_ERROR "keytool could not generate ${arg_KEYSTORE}")
+        endif()
+    endif()
 
     add_custom_command(
         OUTPUT "${base_apk}"

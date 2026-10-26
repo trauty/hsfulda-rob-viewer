@@ -10,6 +10,7 @@ namespace robv::session
     namespace
     {
         constexpr u64 stats_window_ns = 2'000'000'000ull;
+        constexpr u64 keyframe_request_gap_ns = 250'000'000ull;
 
         u64 steady_ns()
         {
@@ -33,6 +34,15 @@ namespace robv::session
             return info;
         }
 
+        const peer_t* find_peer(const session_t& session, u32 client_id)
+        {
+            for (const peer_t& peer : session.control.peers)
+            {
+                if (peer.client_id == client_id) { return &peer; }
+            }
+            return nullptr;
+        }
+
         void handle_event(session_t& session, const control_event_t& event, u64 now_ns)
         {
             switch (event.kind)
@@ -42,8 +52,11 @@ namespace robv::session
                 const welcome_msg_t welcome{.client_id = event.client_id, .video = session.sink.info};
                 transport::send_welcome(session.control, event.client_id, welcome);
                 transport::send_source_info(session.control, event.client_id, make_source_info(session));
-                transport::add_video_peer(session.sink, event.client_id);
-                // a late joiner can only start decoding at an IDR
+                // the client can only start decoding at an IDR
+                if (const peer_t* peer = find_peer(session, event.client_id))
+                {
+                    transport::add_video_peer(session.sink, event.client_id, peer->ipv4, peer->video_port);
+                }
                 encoder::request_keyframe(session.encoder);
                 // and gets the state immediately
                 session.last_state_tick = UINT64_MAX;
@@ -61,6 +74,14 @@ namespace robv::session
                 {
                     ROBV_LOG_DEBUG("SESSION", "ignored malformed intent {} from client {}", event.intent.seq,
                                    event.client_id);
+                }
+                break;
+            case control_event_kind_e::keyframe_request:
+                if (now_ns - session.last_keyframe_request_ns >= keyframe_request_gap_ns)
+                {
+                    session.last_keyframe_request_ns = now_ns;
+                    encoder::request_keyframe(session.encoder);
+                    ROBV_LOG_DEBUG("SESSION", "client {} lost video, next frame is an IDR", event.client_id);
                 }
                 break;
             case control_event_kind_e::ping:
@@ -156,6 +177,8 @@ namespace robv::session
         session.events.clear();
         transport::poll_control(session.control, now_ns, session.events);
         for (const control_event_t& event : session.events) { handle_event(session, event, now_ns); }
+        // a client that just became reachable can only start decoding at an IDR
+        if (transport::poll_video(session.sink)) { encoder::request_keyframe(session.encoder); }
 
         source::set_paused(session.source, !session.state.playback.playing);
         if (source::poll(session.source, now_ns, session.cloud))

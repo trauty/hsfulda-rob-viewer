@@ -7,8 +7,7 @@ namespace robv::view_state
 {
     namespace
     {
-        constexpr f32 pi = 3.14159265358979f;
-        constexpr f32 max_pitch = pi * 0.5f - 0.01f;
+        constexpr f32 max_pitch = PI * 0.5f - 0.01f;
         constexpr f32 min_distance = 0.1f;
         constexpr f32 max_distance = 10000.0f;
         constexpr f32 max_zoom_step = 4.0f;
@@ -18,9 +17,9 @@ namespace robv::view_state
 
         f32 wrap_angle(f32 angle)
         {
-            angle = std::fmod(angle + pi, 2.0f * pi);
-            if (angle < 0.0f) { angle += 2.0f * pi; }
-            return angle - pi;
+            angle = std::fmod(angle + PI, TAU);
+            if (angle < 0.0f) { angle += TAU; }
+            return angle - PI;
         }
 
         void orbit(camera_t& camera, f32 dx, f32 dy)

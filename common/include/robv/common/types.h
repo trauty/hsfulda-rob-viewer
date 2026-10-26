@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <numbers>
 
 using u8 = std::uint8_t;
 using u16 = std::uint16_t;
@@ -20,6 +21,9 @@ static_assert(sizeof(f32) == 4 && sizeof(f64) == 8, "IEEE 754 single and double 
 
 namespace robv
 {
+    inline constexpr f32 PI = std::numbers::pi_v<f32>;
+    inline constexpr f32 TAU = 2.0f * PI;
+
     struct vec3_t
     {
         f32 x = 0.0f;

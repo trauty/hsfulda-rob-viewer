@@ -19,7 +19,7 @@
 // video is out of band, H.264 or HEVC over RTP, see docs/protocol.md
 namespace robv
 {
-    inline constexpr u8 protocol_version = 1;
+    inline constexpr u8 protocol_version = 3;
     inline constexpr u32 max_frame_size = 64u * 1024u * 1024u;
     inline constexpr u32 frame_header_size = 6;
 
@@ -29,6 +29,8 @@ namespace robv
         hello = 1,
         input_intent = 2,
         ping = 3,
+        // the video decoder lost packets and waits for an IDR
+        request_keyframe = 4,
         // server to client
         welcome = 16,
         state_snapshot = 17,
@@ -42,6 +44,9 @@ namespace robv
     {
         u8 protocol_version = robv::protocol_version;
         std::string client_name;
+        // the client's UDP port for video, the server sends to it at the control connection's address
+        // so the robot needs no inbound UDP rule, 0 falls back to the punch
+        u16 video_port = 0;
 
         bool operator==(const hello_msg_t&) const = default;
     };
@@ -52,6 +57,10 @@ namespace robv
 
         bool operator==(const ping_msg_t&) const = default;
     };
+
+    // no payload
+    struct keyframe_request_msg_t
+    { bool operator==(const keyframe_request_msg_t&) const = default; };
 
     struct video_info_t
     {
@@ -122,6 +131,7 @@ namespace robv::protocol
     void write(std::vector<u8>& out, const hello_msg_t& msg);
     void write(std::vector<u8>& out, const input_intent_t& msg);
     void write(std::vector<u8>& out, const ping_msg_t& msg);
+    void write(std::vector<u8>& out, const keyframe_request_msg_t& msg);
     void write(std::vector<u8>& out, const welcome_msg_t& msg);
     void write(std::vector<u8>& out, const state_snapshot_msg_t& msg);
     void write(std::vector<u8>& out, const source_info_msg_t& msg);
@@ -137,6 +147,7 @@ namespace robv::protocol
     bool read(std::span<const u8> payload, hello_msg_t& out);
     bool read(std::span<const u8> payload, input_intent_t& out);
     bool read(std::span<const u8> payload, ping_msg_t& out);
+    bool read(std::span<const u8> payload, keyframe_request_msg_t& out);
     bool read(std::span<const u8> payload, welcome_msg_t& out);
     bool read(std::span<const u8> payload, state_snapshot_msg_t& out);
     bool read(std::span<const u8> payload, source_info_msg_t& out);

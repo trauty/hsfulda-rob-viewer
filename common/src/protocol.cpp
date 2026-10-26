@@ -168,6 +168,7 @@ namespace robv::protocol
             case msg_type_e::hello:
             case msg_type_e::input_intent:
             case msg_type_e::ping:
+            case msg_type_e::request_keyframe:
             case msg_type_e::welcome:
             case msg_type_e::state_snapshot:
             case msg_type_e::source_info:
@@ -183,6 +184,7 @@ namespace robv::protocol
         const size_t start = begin_frame(out, msg_type_e::hello);
         put_u8(out, msg.protocol_version);
         put_string(out, msg.client_name);
+        put_u16(out, msg.video_port);
         end_frame(out, start);
     }
 
@@ -203,6 +205,9 @@ namespace robv::protocol
         put_u64(out, msg.t_client_ns);
         end_frame(out, start);
     }
+
+    void write(std::vector<u8>& out, const keyframe_request_msg_t&)
+    { end_frame(out, begin_frame(out, msg_type_e::request_keyframe)); }
 
     void write(std::vector<u8>& out, const welcome_msg_t& msg)
     {
@@ -331,6 +336,7 @@ namespace robv::protocol
         reader_t r{payload};
         out.protocol_version = get_u8(r);
         out.client_name = get_string(r);
+        out.video_port = get_u16(r);
         return finish(r);
     }
 
@@ -352,6 +358,8 @@ namespace robv::protocol
         out.t_client_ns = get_u64(r);
         return finish(r);
     }
+
+    bool read(std::span<const u8> payload, keyframe_request_msg_t&) { return payload.empty(); }
 
     bool read(std::span<const u8> payload, welcome_msg_t& out)
     {
@@ -467,6 +475,7 @@ namespace robv::protocol
         case msg_type_e::hello: return "hello";
         case msg_type_e::input_intent: return "input_intent";
         case msg_type_e::ping: return "ping";
+        case msg_type_e::request_keyframe: return "request_keyframe";
         case msg_type_e::welcome: return "welcome";
         case msg_type_e::state_snapshot: return "state_snapshot";
         case msg_type_e::source_info: return "source_info";

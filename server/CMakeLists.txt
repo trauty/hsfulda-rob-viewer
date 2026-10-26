@@ -6,13 +6,19 @@ add_library(robv_server_core STATIC
     src/transport.cpp)
 target_include_directories(robv_server_core PUBLIC include)
 target_link_libraries(robv_server_core PUBLIC robv::common robv::log robv::vkcore robv_glm)
-robv_add_shaders(robv_server_core FILES shaders/rgb_to_nv12.slang)
+robv_add_shaders(robv_server_core FILES shaders/rgb_to_nv12.slang shaders/points.slang shaders/lines.slang)
 robv_target_defaults(robv_server_core)
 
 if(ROBV_ENCODER STREQUAL "jetson")
     target_sources(robv_server_core PRIVATE src/encoder_jetson.cpp)
     target_compile_definitions(robv_server_core PRIVATE ROBV_ENCODER_JETSON=1)
     target_link_libraries(robv_server_core PRIVATE robv_jetson_mmapi)
+endif()
+
+if(ROBV_WITH_FFMPEG)
+    target_sources(robv_server_core PRIVATE src/encoder_ffmpeg.cpp)
+    target_compile_definitions(robv_server_core PRIVATE ROBV_ENCODER_FFMPEG=1)
+    target_link_libraries(robv_server_core PRIVATE PkgConfig::FFMPEG)
 endif()
 
 if(ROBV_WITH_MCAP)

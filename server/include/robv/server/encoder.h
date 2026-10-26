@@ -13,6 +13,8 @@ namespace robv
         null,
         // V4L2 M2M via the Jetson Multimedia API
         jetson,
+        // libavcodec, NVENC or x264, the desktop stand in for the Jetson
+        ffmpeg,
     };
 
     struct encoder_config_t

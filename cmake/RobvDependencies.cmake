@@ -92,7 +92,7 @@ if(ROBV_BUILD_CLIENT)
             GIT_TAG release-3.4.16
             SOURCE_DIR "${CMAKE_SOURCE_DIR}/third_party/SDL"
             OPTIONS "SDL_SHARED ON" "SDL_STATIC OFF" "SDL_TEST_LIBRARY OFF" "SDL_TESTS OFF" "SDL_EXAMPLES OFF"
-                    "SDL_INSTALL OFF" "SDL_DISABLE_INSTALL ON")
+            "SDL_INSTALL OFF" "SDL_DISABLE_INSTALL ON")
     endif()
     set(ROBV_SDL_SOURCE_DIR "${CMAKE_SOURCE_DIR}/third_party/SDL" CACHE INTERNAL "")
 
@@ -125,7 +125,7 @@ if(robv_need_mcap)
             GIT_TAG v1.5.7
             SOURCE_SUBDIR build/cmake
             OPTIONS "ZSTD_BUILD_PROGRAMS OFF" "ZSTD_BUILD_TESTS OFF" "ZSTD_BUILD_CONTRIB OFF"
-                    "ZSTD_BUILD_SHARED OFF" "ZSTD_BUILD_STATIC ON" "ZSTD_LEGACY_SUPPORT OFF")
+            "ZSTD_BUILD_SHARED OFF" "ZSTD_BUILD_STATIC ON" "ZSTD_LEGACY_SUPPORT OFF")
         set(robv_lz4 lz4_static)
         set(robv_zstd libzstd_static)
     endif()
@@ -142,6 +142,16 @@ if(robv_need_mcap)
     add_library(mcap::mcap ALIAS robv_mcap)
 endif()
 
+# ffmpeg from the system,
+if(ROBV_WITH_FFMPEG AND (ROBV_BUILD_SERVER OR ROBV_BUILD_CLIENT))
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(FFMPEG IMPORTED_TARGET libavcodec>=61 libavutil>=59)
+    if(NOT FFMPEG_FOUND)
+        message(FATAL_ERROR "ROBV_WITH_FFMPEG needs the libavcodec and libavutil development files "
+            "(ffmpeg 7 or newer), or configure with -DROBV_WITH_FFMPEG=OFF")
+    endif()
+endif()
+
 # the Jetson encoder is not a package: JetPack ships the Multimedia API headers in /usr/src and libs in the tegra dir
 if(ROBV_BUILD_SERVER AND ROBV_ENCODER STREQUAL "jetson")
     set(JETSON_MMAPI_ROOT "/usr/src/jetson_multimedia_api" CACHE PATH "Jetson Multimedia API root")
@@ -150,8 +160,8 @@ if(ROBV_BUILD_SERVER AND ROBV_ENCODER STREQUAL "jetson")
     find_library(JETSON_NVBUFSURFACE_LIBRARY NAMES nvbufsurface HINTS /usr/lib/aarch64-linux-gnu/tegra /usr/lib/aarch64-linux-gnu/nvidia)
     if(NOT JETSON_MMAPI_INCLUDE_DIR OR NOT JETSON_NVV4L2_LIBRARY OR NOT JETSON_NVBUFSURFACE_LIBRARY)
         message(FATAL_ERROR "ROBV_ENCODER=jetson needs the Jetson Multimedia API (nvidia-l4t-jetson-multimedia-api): "
-                            "include=${JETSON_MMAPI_INCLUDE_DIR} nvv4l2=${JETSON_NVV4L2_LIBRARY} "
-                            "nvbufsurface=${JETSON_NVBUFSURFACE_LIBRARY}")
+            "include=${JETSON_MMAPI_INCLUDE_DIR} nvv4l2=${JETSON_NVV4L2_LIBRARY} "
+            "nvbufsurface=${JETSON_NVBUFSURFACE_LIBRARY}")
     endif()
     add_library(robv_jetson_mmapi INTERFACE)
     target_include_directories(robv_jetson_mmapi SYSTEM INTERFACE "${JETSON_MMAPI_INCLUDE_DIR}")

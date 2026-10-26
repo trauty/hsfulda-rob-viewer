@@ -3,6 +3,7 @@
 add_library(robv_common STATIC
     src/point_cloud.cpp
     src/protocol.cpp
+    src/rtp.cpp
     src/uri.cpp
     src/video.cpp
     src/view_state.cpp)
